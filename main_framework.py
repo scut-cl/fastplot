@@ -9,14 +9,16 @@
 
 
 from utils.utils import ratio_size, window_size
+from PyQt5.QtWidgets import QColorDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from file_framework import Ui_file_module
 from font_module import Ui_font_module
 from data_analysis_module import data_analysis_module
 from image_pattern import image_pattern_module
-from Common_format import Ui_common_format_module
+from Common_format import Common_format_module
+from table_module import table_module 
 from page_module import page_block_module
-from utils import global_value
+from image_dialog import image_dialog
 
 
 
@@ -103,8 +105,16 @@ class Ui_MainWindow(object):
         
         MainWindow.setCentralWidget(self.centralwidget)
 
+        '''
         #状态栏
-        self.status_bar = QtWidgets.QLabel(MainWindow)
+        self.statusbar = QtWidgets.QStatusBar(self.centralwidget)
+        self.statusbar.setStyleSheet("background-color: rgb(243, 242, 241);")
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+        
+        '''
+        #状态栏
+        self.status_bar = QtWidgets.QLabel(self.centralwidget)
         self.status_bar.setGeometry(QtCore.QRect(0, 
                                                  window_size()[1] - 0.75 * title_height - 11 * ratio_size(), # 0.75 ?
                                                  10000,                                                      # !!!
@@ -112,29 +122,53 @@ class Ui_MainWindow(object):
         
         self.status_bar.setStyleSheet("background-color: rgb(243, 242, 241)")
         self.status_bar.setObjectName("status_bar")
-
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+        '''
+        #Sheet栏
+        self.sheet_bar = QtWidgets.QLabel(MainWindow)
+        self.sheet_bar.setGeometry(QtCore.QRect(0, 
+                                                 window_size()[1] - 0.75 * title_height - 27 * ratio_size(), # 0.75 ?
+                                                 960 * ratio_size(), 
+                                                 16* ratio_size()))
+        
+        self.sheet_bar.setStyleSheet("background-color: rgb(230, 230, 230)")
+        self.sheet_bar.setObjectName("sheet_bar")
+        '''
+        self.retranslateUi(self.centralwidget)
+        QtCore.QMetaObject.connectSlotsByName(self.centralwidget)
         
         #文件模块
-        self.file_framework = Ui_file_module(MainWindow)         
+        self.file_framework = Ui_file_module(self.centralwidget)         
 
         #字体模块
-        self.font_module = Ui_font_module(MainWindow)
+        self.font_module = Ui_font_module(self.centralwidget)
 
         #数据分析模块
-        self.data_analysis_module = data_analysis_module(MainWindow)
+        self.data_analysis_module = data_analysis_module(self.centralwidget, title_height)
+
+        '''
+        #暂时
+        self.file_framework.module_hide()
+        self.font_module.module_hide()
+        self.data_analysis_module.module_hide()
+        '''
 
         #图像样式模块(隐藏)
-        self.image_pattern_module = image_pattern_module(MainWindow, title_height)
+        self.image_pattern_module = image_pattern_module(self.centralwidget, title_height)
         self.image_pattern_module.module_hide()
 
         #常用图像模块(隐藏)
-        self.common_format_module = Ui_common_format_module(MainWindow)
+        self.common_format_module = Common_format_module(self.centralwidget, title_height)
         self.common_format_module.module_hide()
 
+        #表格控件
+        #self.table_module = table_module(MainWindow, title_height)
+
         #页面控件
-        self.page_module = page_block_module(MainWindow, title_height)
+        self.page_module = page_block_module(self.centralwidget, title_height)
+        
+        #self.image_dialog = image_dialog(self.centralwidget) 
+        
  
          
     def retranslateUi(self, MainWindow):
@@ -146,6 +180,7 @@ class Ui_MainWindow(object):
 
 
 class Main_window(Ui_MainWindow):
+
 
     def click_main(self):
         """按下页面按钮"""
@@ -171,12 +206,19 @@ class Main_window(Ui_MainWindow):
         self.file_framework.module_show()
         self.font_module.module_show()
         self.data_analysis_module.module_show()
-
+        '''
+        self.file_framework.module_hide()
+        self.font_module.module_hide()
+        self.data_analysis_module.module_hide()
+        '''
         #隐藏绘图模块
         self.image_pattern_module.module_hide()
         self.common_format_module.module_hide()
 
         #隐藏帮助模块
+
+
+
 
     def click_paint(self):
         """按下绘图按钮"""
@@ -207,6 +249,10 @@ class Main_window(Ui_MainWindow):
         self.common_format_module.module_show()
 
         #隐藏帮助模块
+
+        
+
+
 
 
     def click_help(self):

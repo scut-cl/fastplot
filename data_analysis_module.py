@@ -10,6 +10,10 @@
 from utils.utils import ratio_size
 from PyQt5 import QtCore, QtGui, QtWidgets
 from utils import global_value
+from page_module import processing_tab
+from utils.utils import ratio_size, window_size, data_obtain
+from PyQt5.QtWidgets import QMessageBox
+from MatplotlibWidget import fitting_graph
 
 
 class Ui_data_analysis_module(object):
@@ -171,15 +175,23 @@ class Ui_data_analysis_module(object):
         self.Spectral_analysis_txt.setText(_translate("data_analysis_module", "波谱分析"))
         self.name_data_analysis.setText(_translate("data_analysis_module", "数据分析"))
 
+
+
+from utils.fit_fuction import *
+from scipy.optimize import curve_fit
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+
 class data_analysis_module(Ui_data_analysis_module):
 
 
-    def __init__(self, file_modle) -> None:
+    def __init__(self, file_modle, title_height) -> None:
         self.height_bias = self.height_bias()
         self.horizontal_bias = self.horizontal_bias()
         self.ratio_size =  ratio_size()
+        self.widget_height = self.widget_height(title_height)
         self.app_path = global_value.get_value('app_path').replace('\\','/')
         self.setupUi(file_modle) 
+        self.widget_action()
 
     def height_bias(self) -> float:
         """竖直位置参数修正"""
@@ -191,6 +203,33 @@ class data_analysis_module(Ui_data_analysis_module):
         bias = 272 * ratio_size()
         return bias
 
+    def widget_height(self, title_height) -> float:
+        """控件高度修正"""
+
+        bias = window_size()[1] - 0.75 * title_height - 11 * self.ratio_size \
+               - 94 * self.ratio_size
+
+        return bias   
+
+    def widget_action(self):
+        """控件事件"""
+        
+        self.pushButton_Univariate.clicked.connect(self.paint_fitting)
+
+    def paint_fitting(self):
+        """绘制拟合曲线"""
+
+        tab = processing_tab(self.widget_height)                                   #创建拟合曲线页面
+        univariate_analysis = Univariate_analysis(tab.single_dialog)               #调用拟合模块
+        paint_graph = fitting_graph(tab.image_dialog, univariate_analysis)             #绘制拟合曲线
+        graph_Toolbar = NavigationToolbar(paint_graph, tab.verticalLayoutWidget)
+        tab.layout.addWidget(paint_graph)
+        tab.layout.addWidget(graph_Toolbar)
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '拟合图') 
+        
+        paint_graph.plot_function()
+        
 
     def module_hide(self):
         """隐藏状态"""
@@ -223,3 +262,194 @@ class data_analysis_module(Ui_data_analysis_module):
         self.line.show()
         self.line_2.show()
         self.name_data_analysis.show()
+
+
+class Univariate_analysis():
+
+    """单变量拟合, 传入: 拟合参数"""
+    
+    def __init__(self, single_dialog) -> None:
+
+        self.data = data_obtain()
+
+        self.single_dialog = single_dialog
+        
+        print('self.single_dialog.fitting_method', self.single_dialog.fitting_method)
+        self.fitting()
+
+
+    def get_function(self):
+        # ①判断是否设置了截距
+        if self.single_dialog.intercept_set:
+
+            # ②获取拟合函数类型
+            if self.single_dialog.fitting_method == 'index':
+                self.myFunc = IndexFunc0
+                self.myLabel = 'fit: y=' + str(self.single_dialog.intercept) + '*exp(%5.3f*x)'
+            if self.single_dialog.fitting_method == 'linear':
+                self.myFunc = LinearFunc0
+                self.myLabel = 'fit: y=%5.3f*x+' + str(self.single_dialog.intercept)
+            if self.single_dialog.fitting_method == 'polynomial':
+                if self.orderSpinBox.value() == 2:
+                    self.myFunc = PolynomialFunc0_2
+                    self.myLabel = 'fit: y=%5.3f*x^2+(%5.3f)*x+(' + str(self.single_dialog.intercept) + ')'
+                if self.orderSpinBox.value() == 3:
+                    self.myFunc = PolynomialFunc0_3
+                    self.myLabel = 'fit: y=%5.3f*x^3+(%5.3f)*x^2+(%5.3f)*x+(' + str(self.single_dialog.intercept) + ')'
+                if self.orderSpinBox.value() == 4:
+                    self.myFunc = PolynomialFunc0_4
+                    self.myLabel = 'fit: y=%5.3f*x^4+(%5.3f)*x^3+(%5.3f)*x^2+(%5.3f)*x+(' \
+                                   + str(self.single_dialog.intercept) + ') '
+                if self.orderSpinBox.value() == 5:
+                    self.myFunc = PolynomialFunc0_5
+                    self.myLabel = 'fit: y=%5.3f*x^5+(%5.3f)*x^4+(%5.3f)*x^3+(%5.3f)*x^2+(%5.3f)*x+(' \
+                                   + str(self.single_dialog.intercept) + ') '
+            if self.single_dialog.fitting_method == 'other' :
+                self.myFunc = MyFunc0
+                self.myLabel = 'fit: y=%5.3f*x^(%5.3f)+(' + str(self.single_dialog.intercept) + ')'
+            if self.single_dialog.fitting_method == 'other' :
+                self.myFunc = SinFunc0
+                self.myLabel = 'fit: y=%5.3f*sin(%5.3f*x+(%5.3f))+(' + str(self.single_dialog.intercept) + ')'
+            if self.single_dialog.fitting_method == 'other' :
+                self.myFunc = CosFunc0
+                self.myLabel = 'fit: y=%5.3f*cos(%5.3f*x+(%5.3f))+(' + str(self.single_dialog.intercept) + ')'
+
+        else:
+            if self.single_dialog.fitting_method == 'index':
+                self.myFunc = IndexFunc
+                self.myLabel = 'fit: y=%5.3f*exp(%5.3f * x)'
+            if self.single_dialog.fitting_method == 'linear':
+                self.myFunc = LinearFunc
+                self.myLabel = 'fit: y=%5.3f*x+(%5.3f)'
+            if self.single_dialog.fitting_method == 'log':
+                self.myFunc = LogarithmFunc
+                self.myLabel = 'fit: y=%5.3f*ln(x)+(%5.3f)'
+            if self.single_dialog.fitting_method == 'polynomial':
+                if self.orderSpinBox.value() == 2:
+                    self.myFunc = PolynomialFunc_2
+                    self.myLabel = 'fit: y=%5.3f*x^2+(%5.3f)*x+(%5.3f)'
+                if self.orderSpinBox.value() == 3:
+                    self.myFunc = PolynomialFunc_3
+                    self.myLabel = 'fit: y=%5.3f*x^3+(%5.3f)*x^2+(%5.3f)*x+(%5.3f)'
+                if self.orderSpinBox.value() == 4:
+                    self.myFunc = PolynomialFunc_4
+                    self.myLabel = 'fit: y=%5.3f*x^4+(%5.3f)*x^3+(%5.3f)*x^2+(%5.3f)*x+(%5.3f)'
+                if self.orderSpinBox.value() == 5:
+                    self.myFunc = PolynomialFunc_5
+                    self.myLabel = 'fit: y=%5.3f*x^5+(%5.3f)*x^4+(%5.3f)*x^3+(%5.3f)*x2+(%5.3f)*x+(%5.3f)'
+            if self.single_dialog.fitting_method == 'power':
+                self.myFunc = PowerFunc
+                self.myLabel = 'fit: y=%5.3f*x^(%5.3f)'
+            if self.single_dialog.fitting_method == 'other' :
+                self.myFunc = MyFunc
+                self.myLabel = 'fit: y=%5.3f*x^(%5.3f)+(%5.3f)'
+            if self.single_dialog.fitting_method == 'other' :
+                self.myFunc = SinFunc
+                self.myLabel = 'fit: y=%5.3f*sin(%5.3f*x+(%5.3f))+(%5.3f)'
+            if self.single_dialog.fitting_method == 'other' :
+                self.myFunc = CosFunc
+                self.myLabel = 'fit: y=%5.3f*cos(%5.3f*x+(%5.3f))+(%5.3f)'
+
+
+    def MovingFitting(self):
+        
+        x_data = self.data[:, 0]
+        y_data = self.data[:, 1]
+
+        x = []
+        y = []
+        if self.single_dialog.cycle > len(x_data)-1:
+            QMessageBox.information(self, "信息提示框", '输入周期必须小于点的个数减一！')
+
+            return 0
+        for i in range(len(x_data)-self.single_dialog.cycle + 1):
+            y_sum = 0
+            for j in range(self.single_dialog.cycle):
+                y_sum = y_sum + y_data[i + j]
+            x.append(x_data[i + self.single_dialog.cycle - 1])
+            y.append(y_sum / self.single_dialog.cycle)    
+        
+        self.x_fitting = x
+        self.y_fitting = y
+
+
+    def fitting(self):
+        # 拟合的主要处理过程
+        # 1.首先，判断数据是否合法
+
+        
+        # 2.然后，判断应该选择哪一个函数
+        self.get_function()
+        # 2.5.判断是否反转XY轴
+
+        x_data = self.data[:, 0].tolist()
+        y_data = self.data[:, 1].tolist()
+        if self.single_dialog.reverseXYCheckBox.isChecked():
+            t = x_data
+            x_data = y_data
+            y_data = t
+         # 2.6.进行X排序处理
+        if self.single_dialog.sortCheckBox.isChecked():
+            data = []
+            for i in range(len(x_data)):
+                point = PointData()
+                point.x = x_data[i]
+                point.y = y_data[i]
+                data.append(point)
+            data.sort()
+            x_data.clear()
+            y_data.clear()
+            for i in range(len(data)):
+                x_data.append(data[i].x)
+                y_data.append(data[i].y)
+            data.clear()
+            #print(x_data)
+            #print(y_data)
+        # 3.进行拟合
+        # 移动平均的特殊处理
+        if self.single_dialog.fitting_method == 'moving':
+            if self.MovingFitting() == 0:
+                return
+            else:
+                return
+
+       # ①进行拟合计算
+        try:
+            popt, pcov = curve_fit(self.myFunc, x_data, y_data, maxfev=500000)
+        except Exception as e:
+            QMessageBox.information(self, "信息提示框", '输入数据或参数出现异常')
+            print(type(e), e)
+            return
+        print(*popt)  # 拟合获得的未知参数值
+
+            # ②绘制原始数据点
+
+
+            # ③计算拟合程度参数
+        calc_yData = [self.myFunc(i, *popt) for i in x_data]  # 因为使用的函数参数个数不同，此处应直接用popt
+        res_yData = numpy.array(y_data) - numpy.array(calc_yData)
+        ss_res = numpy.sum(res_yData ** 2)
+        ss_tot = numpy.sum((y_data - numpy.mean(y_data)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot)
+        # 结果显示
+        self.fittingFunc = str(self.myLabel % tuple(popt))
+        self.r_squared = str(round(r_squared, 4))
+        # 对前推、后推进行计算
+        x_min = min(x_data)
+        x_max = max(x_data)
+        if self.single_dialog.right_extend != 0:
+            x_right = self.single_dialog.right_extend
+            x_max = x_max + x_right
+
+        if self.single_dialog.left_extend != 0:
+            x_left = self.single_dialog.left_extend
+            x_min = x_min - x_left
+            if self.single_dialog.fitting_method == 'log' or self.single_dialog.fitting_method == 'power':  # 防止后推过大导致不合法
+                if x_min < 0:
+                    x_min = 0
+        
+        self.x_fitting = numpy.linspace(x_min, x_max)
+        self.y_fitting = self.myFunc(numpy.linspace(x_min, x_max), *popt)
+
+
+

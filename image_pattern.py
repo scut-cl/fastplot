@@ -1,14 +1,25 @@
 
 
-from sre_parse import GLOBAL_FLAGS
+from PyQt5.QtWidgets import QVBoxLayout, QDialog, QColorDialog
 from utils.utils import ratio_size, window_size, data_obtain
 from PyQt5 import QtCore, QtGui, QtWidgets
-from MatplotlibWidget import MatplotlibWidget
+from MatplotlibWidget import (Scatter_graph, 
+                              Solidline_graph, 
+                              Bar_graph, 
+                              Step_graph,
+                              Stem_graph,
+                              Threedimension_graph,
+                              Error_graph,
+                              Histogram3D_graph,
+                              Ternary_graph,
+                              IR_graph)
 from utils import global_value
-from page_module import page_block_module
 from table_module import table_module
 from PyQt5.QtCore import pyqtSlot
 from numpy import arange, sin, pi, cos
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from image_dialog import image_dialog
+from page_module import image_tab
 
 class Ui_image_pattern_module(object):
     """图像样式模块"""
@@ -215,44 +226,16 @@ class Ui_image_pattern_module(object):
         self.label_triangle.setText(_translate("image_pattern_module", "三角"))
         self.name_image_parttern.setText(_translate("image_pattern_module", "图像样式"))
 
-class Scatter_graph(MatplotlibWidget):
-
-    def plot_function(self):
-        
-        data_array = data_obtain()
-        self.fig.suptitle('测试散点图')
-        self.axes.scatter(data_array[:, 0], data_array[:, 1])
-        self.axes.set_ylim(0, 1)
-        self.axes.set_xlim(210, 360)
-        self.axes.set_ylabel('静态图：Y轴')
-        self.axes.set_xlabel('静态图：X轴')
-        self.axes.grid(False) 
-
-class Solidline_graph(MatplotlibWidget):
-
-    def plot_function(self):
-        
-        data_array = data_obtain()
-        self.fig.suptitle('测试实线图')
-        self.axes.plot(data_array[:, 0], data_array[:, 1])
-        #self.axes.set_ylim(0, 1)
-        #self.axes.set_xlim(210, 360)
-        self.axes.set_ylabel('静态图：Y轴')
-        self.axes.set_xlabel('静态图：X轴')
-        self.axes.grid(False)         
-
-
 class image_pattern_module(Ui_image_pattern_module):
     
     def __init__(self, main_window, title_height) -> None:
-        
-        self.app_path = global_value.get_value('app_path').replace('\\','/')
+
         self.height_bias = self.height_bias()
         self.main_window = main_window
         self.title_height = title_height
         self.ratio_size = ratio_size()
         self.widget_height = self.widget_height(title_height)
-
+        self.app_path = global_value.get_value('app_path').replace('\\','/')
         self.ratio_size =  ratio_size()
         self.setupUi(main_window) 
 
@@ -276,38 +259,148 @@ class image_pattern_module(Ui_image_pattern_module):
     def paint_Scatter(self):
         """绘制散点图"""
 
+        tab = image_tab(self.widget_height)    
+        self.Scatter_graph = Scatter_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)
+        self.Scatter_Toolbar = NavigationToolbar(self.Scatter_graph, tab.verticalLayoutWidget)  
+        tab.layout.addWidget(self.Scatter_graph)
+        tab.layout.addWidget(self.Scatter_Toolbar)
         tabwidget = global_value.get_value('page_object')
-        self.Scatter_graph = Scatter_graph(self.main_window)
-        tabwidget.addTab(self.Scatter_graph, '散点图')
-        self.Scatter_graph.setGeometry(QtCore.QRect(0, 
-                                                    0, 
-                                                    960 * self.ratio_size, 
-                                                    self.widget_height))
-        self.Scatter_graph.setObjectName("Scatter_graph")
-        self.Scatter_graph.setStyleSheet("background-color: rgb(171, 171, 171);")
+        tabwidget.addTab(tab, '散点图') 
+
         self.Scatter_graph.plot_function()
+        
+        
     
     def paint_Soildline(self):
         """绘制实线图"""
 
+        tab = image_tab(self.widget_height)                                                                 #创建绘图页面
+        #paint_params = tab.image_dialog.apply_params()                                                      #调用绘图方法
+        self.Solidline_graph = Solidline_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        self.Solidline_Toolbar = NavigationToolbar(self.Solidline_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(self.Solidline_graph)
+        tab.layout.addWidget(self.Solidline_Toolbar)
+
         tabwidget = global_value.get_value('page_object')
-        self.Solidline_graph = Solidline_graph(self.main_window)
-        tabwidget.addTab(self.Solidline_graph, '实线图')
-        self.Solidline_graph.setGeometry(QtCore.QRect(0, 
-                                                    0, 
-                                                    960 * self.ratio_size, 
-                                                    self.widget_height))
-        self.Solidline_graph.setObjectName("Solidline_graph")
-        self.Solidline_graph.setStyleSheet("background-color: rgb(171, 171, 171);")
+        tabwidget.addTab(tab, '实线图')
+
         self.Solidline_graph.plot_function()
+
+    def paint_bar(self):
+        """绘制柱状图"""        
+
+        tab = image_tab(self.widget_height)
+        bar_graph = Bar_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        bar_Toolbar = NavigationToolbar(bar_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(bar_graph)
+        tab.layout.addWidget(bar_Toolbar)
+
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '柱状图')
+
+        bar_graph.plot_function()        
+        
+          
+    def paint_step(self):
+        """绘制阶梯图"""
+
+        tab = image_tab(self.widget_height)
+        step_graph = Step_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        step_Toolbar = NavigationToolbar(step_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(step_graph)
+        tab.layout.addWidget(step_Toolbar)
+
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '阶梯图')
+
+        step_graph.plot_function()        
+
+    def paint_vertical(self):
+        """绘制垂线图"""
+
+        tab = image_tab(self.widget_height)
+        stem_graph = Stem_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        step_Toolbar = NavigationToolbar(stem_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(stem_graph)
+        tab.layout.addWidget(step_Toolbar)
+
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '垂线图')
+
+        stem_graph.plot_function()        
+
+    def paint_3D(self):
+        """三维图"""
+
+        tab = image_tab(self.widget_height)
+        threedimension_graph = Threedimension_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        step_Toolbar = NavigationToolbar(threedimension_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(threedimension_graph)
+        tab.layout.addWidget(step_Toolbar)
+
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '三维图')
+
+        threedimension_graph.plot_function()              
+    
+    def error_bar(self):
+        """误差图"""
+
+        tab = image_tab(self.widget_height)
+        error_graph = Error_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        step_Toolbar = NavigationToolbar(error_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(error_graph)
+        tab.layout.addWidget(step_Toolbar)
+
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '误差图')
+
+        error_graph.plot_function()         
+
+    def bar_3d(self):
+        """三维柱状"""
+
+        tab = image_tab(self.widget_height)
+        histogram3D_graph = Histogram3D_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        step_Toolbar = NavigationToolbar(histogram3D_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(histogram3D_graph)
+        tab.layout.addWidget(step_Toolbar)
+
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '三维柱状')
+
+        histogram3D_graph.plot_function()         
+    
+    def ternary_graph(self):
+        """三角图"""
+
+        tab = image_tab(self.widget_height)
+        ternary_graph = Ternary_graph(tab.image_dialog, tab.verticalLayoutWidget, width=5, height=2)   #绘制图像
+        step_Toolbar = NavigationToolbar(ternary_graph, tab.verticalLayoutWidget)         
+        tab.layout.addWidget(ternary_graph)
+        tab.layout.addWidget(step_Toolbar)
+
+        tabwidget = global_value.get_value('page_object')
+        tabwidget.addTab(tab, '三角图')
+
+        ternary_graph.plot_function()                
+    
+
+
 
 
     def widget_action(self):
         '''控件事件'''
+        
         self.pushButton_Scatter.clicked.connect(self.paint_Scatter)
         self.pushButton_solidline.clicked.connect(self.paint_Soildline)
-
-
+        self.pushButton_Histogram.clicked.connect(self.paint_bar)
+        self.pushButton_Stairs.clicked.connect(self.paint_step)
+        self.pushButton_vertical_line.clicked.connect(self.paint_vertical)
+        self.pushButton_three_dimensional.clicked.connect(self.paint_3D)
+        self.pushButton_error.clicked.connect(self.error_bar)
+        self.pushButton_Histogram_3D.clicked.connect(self.bar_3d)
+        self.pushButton_triangle.clicked.connect(self.ternary_graph)
 
     def module_hide(self):
         """隐藏状态"""

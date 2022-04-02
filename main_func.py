@@ -1,4 +1,4 @@
-# 2022/2/20 复制到剪贴板功能在选中无数据单元格时，粘贴后出现问题
+# 2022/2/20 复制到剪贴板功能在选中无数据单元格时，粘贴后出现问题(已解决)
 # 2022/2/20 重新定义了全局变量字典 dict_keys(['app_path', 'page_count', 'immediate_page_num', 'page_dict_1'])
 # 2022/2/20 'page_dict_1' dict_keys(['tab_number', 'page_num', 'immediate_sheet', 'table_dict_1', 'table_dict_2', 'table_dict_3'])
 
@@ -9,46 +9,8 @@ from main_framework import Main_window
 from utils.utils import window_size
 from PyQt5 import QtWidgets, QtCore
 from utils import global_value
+from utils.utils import copy_text
 
-def copy_text(tableWidget):
-    """复制数据"""
-
-    try:
-        indexes = tableWidget.selectedIndexes() # 获取表格对象中被选中的数据索引列表
-        indexes_dict = {}
-        for index in indexes: # 遍历每个单元格
-            row, column = index.row(), index.column() # 获取单元格的行号，列号
-            
-            if row in indexes_dict.keys():
-                indexes_dict[row].append(column)
-            else:
-                indexes_dict[row] = [column]
-
-    # 将数据表数据用制表符(\t)和换行符(\n)连接，使其可以复制到excel文件中
-
-
-
-        text = ''
-        for row, columns in indexes_dict.items():
-            row_data = ''
-            for column in columns:
-                try:
-                    data = tableWidget.item(row, column).text()
-                except:
-                    data = ' '
-                if row_data:
-                    row_data = row_data + '\t' + data
-                else:
-                    row_data = data
-            if text:
-                text = text + '\n' + row_data
-            else:
-                text = row_data
-        return text + '\n'
-
-    except BaseException as e:
-        print('BaseException')
-        return ''
 
 
 def set_global():
@@ -56,7 +18,7 @@ def set_global():
 
     # 全局参数变量
     app_path = os.path.dirname(os.path.abspath(__file__))
-    print('app_path', app_path)
+    print(app_path)
     global_value.set_value('app_path', app_path)
     #global_value.set_value('tab_number', 0) #初始化标签页数
     #global_value.set_value('immediate_sheet', 1) #显示的表格页面
@@ -80,13 +42,14 @@ class MyMainWindow(QMainWindow, Main_window):
 
         super().keyPressEvent(event)
         if event.key() == QtCore.Qt.Key_C and (event.modifiers() & QtCore.Qt.ControlModifier):
+            #print('push C')
 
             try:
 
                 immediate_num = global_value.get_value('page_dict_1')['immediate_sheet'] #当前所在表格
                 immediate_tablewidget = global_value.get_value('page_dict_1')['table_dict_' + str(immediate_num)]['Sheet'].tableWidget
                 text = copy_text(immediate_tablewidget) # 获取当前表格选中的数据tableWidget
-
+                #print('text:', text)
                 if text:
                     pyperclip.copy(text) # 复制数据到粘贴板            
 
@@ -116,6 +79,7 @@ class MyMainWindow(QMainWindow, Main_window):
                     immediate_tablewidget.setRowCount(immediate_tableobject.row_num)
               
 
+                #print(text_data)
                 for row in range(data_row_num):
                     for col in range(data_column_num):
                         position = row * data_column_num + col
