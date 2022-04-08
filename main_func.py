@@ -3,7 +3,9 @@
 # 2022/2/20 'page_dict_1' dict_keys(['tab_number', 'page_num', 'immediate_sheet', 'table_dict_1', 'table_dict_2', 'table_dict_3'])
 
 import sys, time, pyperclip, os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QWidget
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
 from matplotlib.pyplot import table
 from main_framework import Main_window
 from utils.utils import window_size
@@ -35,9 +37,12 @@ class MyMainWindow(QMainWindow, Main_window):
     def __init__(self, title_height) -> None:
         super(MyMainWindow, self).__init__( )
         
+        self.app_path = global_value.get_value('app_path').replace('\\','/')
         self.setupUi(self, title_height) 
         self.resize(window_size()[0] * 0.5, window_size()[1] * 0.5)
-
+        self.setWindowTitle('Fastplot')
+        self.setWindowIcon(QIcon(self.app_path + "/graph/fastplot.png"))
+        
     def keyPressEvent(self, event):
 
         super().keyPressEvent(event)
@@ -87,43 +92,56 @@ class MyMainWindow(QMainWindow, Main_window):
             except:
                 print('数据错误')
 
-class title_detect(object):
+class Title_detect():
 
     def __init__(self) -> None:
+
+        self.app_path = global_value.get_value('app_path').replace('\\','/')        
+        self.widget = QWidget()
+        self.widget.resize(316, 202)
+        self.widget.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
+        self.widget.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.widget.setWindowTitle(' ')
+        self.widget.setWindowIcon(QIcon(self.app_path + "/graph/blank.png"))
+
+        self.label = QtWidgets.QLabel(self.widget)
+        self.label.setGeometry(QtCore.QRect(70, 10, 181, 131))
+        self.label.setStyleSheet("border-image: url(" + self.app_path + "/graph/fastplot_label.png);")        
+        self.text_label = QtWidgets.QLabel(self.widget)
+        self.text_label.setGeometry(QtCore.QRect(100, 155, 121, 21))
+        self.text_label.setStyleSheet("background-color: rgba(255, 255, 255, 0);")
+        self.text_label.setText('Fastplot version1.0')
+        self.widget.show()
+
+
         self.title_height = None
+        self.title_measure()   
 
-    def create_window(self):
-        app = QtWidgets.QApplication(sys.argv)
 
-        window = QtWidgets.QWidget()
+        
+        self.timer = QTimer(self.widget)
+        self.timer.timeout.connect(self.widget.close)
+        self.timer.start(2000)                 #设定一秒后关闭初始化窗口
 
-        #window.setWindowTitle("在屏幕中央显示窗口")
 
-        window.resize(200, 200)
+    def title_measure(self):
 
-        window.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
-
-        window.show()
-
-        self.title_height = window.frameGeometry().height() - window.geometry().height()
-
-        time.sleep(1)
-
-        window.close()
-
+        self.title_height = self.widget.frameGeometry().height() - self.widget.geometry().height()
 
 
 
 if __name__ == '__main__':
     
+    set_global()  # 设置跨模块全局变量    
+
     #测量任务栏高度
-    title_detect = title_detect()
-    title_detect.create_window()
+    app_appearance = QApplication(sys.argv)
+
+    title_detect = Title_detect()
+
     title_height = title_detect.title_height
     
-
-
-    set_global()  # 设置跨模块全局变量
+    app_appearance.exec_()
 
     app = QApplication(sys.argv)
     
