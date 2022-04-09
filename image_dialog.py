@@ -6,7 +6,7 @@ from typing import Tuple
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QColorDialog
 from utils import global_value
-from utils.utils import ratio_size, window_size, data_obtain
+from utils.utils import data_obtain
 
 class Ui_Dialog(object):
     """绘图参数对话框UI"""
@@ -483,11 +483,6 @@ class image_dialog(QDialog, Ui_Dialog):
         self.line_width = float(self.line_width_comboBox.currentText())
         
         self.close()       
-        '''
-        return self.x_min, self.x_max, self.x_tick_value, self.x_tick_direction, self.y_min, self.y_max, self.y_tick_value, self.y_tick_direction,\
-               self.z_min, self.z_max, self.z_tick_value, self.z_tick_direction, self.fig_title, self.fig_font, self.legend_bool, self.fig_color,\
-               self.scatter_style, self.scatter_size, self.scatter_color, self.line_style, self.connect_style, self.line_width, self.line_color,self.legend_txt
-        '''
 
 
     def widget_action(self):
@@ -541,7 +536,6 @@ class image_dialog(QDialog, Ui_Dialog):
         self.scatter_size_comboBox.addItems(maker_szie)
 
         line_list = ['·······', '-·-·-·-·-', '- - - - - - -', '———————']
-        #linestyleList = ["-", "--", "-.",":"]
         self.line_dict = {'·······':":", '-·-·-·-·-':"-.", '- - - - - - -':"--", '———————':"-"}
 
         line_width = ['0.2', '0.5', '1', '1.5', '2', '3', '4', '5']
@@ -555,13 +549,12 @@ class image_dialog(QDialog, Ui_Dialog):
 
     def maker_change(self):
         """改变数据点图片"""
-        
-        #print('change')
+
         name = self.scatter_style_comboBox.currentText()
 
         app_path = global_value.get_value('app_path').replace('\\','/') + '/graph/maker/' + name + '.png'
-        #print(app_path)
-        jpg = QtGui.QPixmap(app_path)#.scaled(self.label.width(), self.label.height())
+
+        jpg = QtGui.QPixmap(app_path)
         self.scatter_style_replay.setPixmap(jpg)
 
 

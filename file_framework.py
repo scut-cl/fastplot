@@ -9,10 +9,8 @@
 
 from utils.utils import ratio_size
 from utils import global_value
-from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
-import sys
+
 
 class Ui_file_module(object):
     """文件模块"""

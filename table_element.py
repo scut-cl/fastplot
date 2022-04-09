@@ -2,9 +2,8 @@
 
 
 from utils.utils import ratio_size, window_size
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QTableWidgetItem, QTableWidget
-from utils import global_value
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QWidget
 
 
 

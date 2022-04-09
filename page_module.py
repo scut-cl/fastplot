@@ -1,8 +1,8 @@
 # 2022/2/23 更新全局列表, 新增页面对象'page_object' dict_keys(['app_path', 'page_count', 'immediate_page_num', 'page_dict_1', 'page_object'])
 
-from utils.utils import ratio_size, window_size, data_obtain
+from utils.utils import ratio_size, window_size
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QTableWidgetItem, QTableWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget,QVBoxLayout
 from utils import global_value
 from table_module import table_module
 from image_dialog import image_dialog
@@ -135,13 +135,11 @@ class page_block_module(QWidget, Ui_page_module):
 
     def tab_close(self, currentIndex):
         """关闭选项卡或清除表格数据"""
-
-        #print('currentIndex', currentIndex)
         
         if currentIndex == 0:
             tab_num = global_value.get_value('page_dict_1')['tab_number']
             for i in range(tab_num):
-                #print(tab_num - i)
+                
                 self.table_widget.tabWidget_sheet.removeTab(tab_num - i)
             
             global_value.get_value('page_dict_1')['tab_number'] = 1

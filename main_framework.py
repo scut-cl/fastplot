@@ -9,16 +9,14 @@
 
 
 from utils.utils import ratio_size, window_size
-from PyQt5.QtWidgets import QColorDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from file_framework import Ui_file_module
 from font_module import Ui_font_module
 from data_analysis_module import data_analysis_module
 from image_pattern import image_pattern_module
 from Common_format import Common_format_module
-from table_module import table_module 
 from page_module import page_block_module
-from image_dialog import image_dialog
+
 
 
 
@@ -161,13 +159,10 @@ class Ui_MainWindow(object):
         self.common_format_module = Common_format_module(self.centralwidget, title_height)
         self.common_format_module.module_hide()
 
-        #表格控件
-        #self.table_module = table_module(MainWindow, title_height)
-
         #页面控件
         self.page_module = page_block_module(self.centralwidget, title_height)
         
-        #self.image_dialog = image_dialog(self.centralwidget) 
+
         
  
          

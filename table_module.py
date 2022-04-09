@@ -4,7 +4,7 @@
 
 from utils.utils import ratio_size, window_size
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QTableWidgetItem, QTableWidget
+from PyQt5.QtWidgets import QWidget
 from utils import global_value
 from table_element import table_element
 
@@ -14,7 +14,6 @@ class Ui_table_module(object):
 
     def setupUi(self, table_module):
         table_module.setObjectName("table_module")
-        #table_module.resize(960 * self.ratio_size, 387 * self.ratio_size)
         table_module.setStyleSheet("background-color: rgb(230, 230, 230);") #!!!!!!背景颜色
         
         #页面栏
@@ -196,7 +195,7 @@ class table_module(QWidget, Ui_table_module):
             global_value.get_value('page_dict_1')['table_dict_' + str(self.tab_num)] = table_dict
             global_value.get_value('page_dict_1')['tab_number'] = self.tab_num   #更新标签页数
 
-        #print(global_value._global_dict['page_dict_1'].keys())
+ 
 
     def module_hide(self):
         """隐藏模块"""

@@ -2,14 +2,14 @@
 from sqlite3 import DataError
 from typing import List, Tuple
 import matplotlib
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from matplotlib.ticker import MultipleLocator
 
 matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from utils.utils import ratio_size, window_size, data_obtain, data_normalize
-from scipy.interpolate import make_interp_spline, interp2d, interp1d
+from utils.utils import ratio_size,data_obtain, data_normalize
+from scipy.interpolate import make_interp_spline, interp1d
 import numpy as np
 
 class MatplotlibWidget(FigureCanvas):

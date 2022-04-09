@@ -1,6 +1,4 @@
 
-
-from PyQt5.QtWidgets import QVBoxLayout, QDialog, QColorDialog
 from utils.utils import ratio_size, window_size, data_obtain
 from PyQt5 import QtCore, QtGui, QtWidgets
 from MatplotlibWidget import (Scatter_graph, 
@@ -12,13 +10,9 @@ from MatplotlibWidget import (Scatter_graph,
                               Error_graph,
                               Histogram3D_graph,
                               Ternary_graph,
-                              IR_graph)
+                              )
 from utils import global_value
-from table_module import table_module
-from PyQt5.QtCore import pyqtSlot
-from numpy import arange, sin, pi, cos
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from image_dialog import image_dialog
 from page_module import image_tab
 
 class Ui_image_pattern_module(object):

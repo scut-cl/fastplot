@@ -117,11 +117,9 @@ class Title_detect():
         self.title_height = None
         self.title_measure()   
 
-
-        
         self.timer = QTimer(self.widget)
         self.timer.timeout.connect(self.widget.close)
-        self.timer.start(2000)                 #设定一秒后关闭初始化窗口
+        self.timer.start(2000)                 #设定2秒后关闭初始化窗口
 
 
     def title_measure(self):

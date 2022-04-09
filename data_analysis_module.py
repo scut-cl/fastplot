@@ -273,8 +273,6 @@ class Univariate_analysis():
         self.data = data_obtain()
 
         self.single_dialog = single_dialog
-        
-        print('self.single_dialog.fitting_method', self.single_dialog.fitting_method)
         self.fitting()
 
 
@@ -403,8 +401,7 @@ class Univariate_analysis():
                 x_data.append(data[i].x)
                 y_data.append(data[i].y)
             data.clear()
-            #print(x_data)
-            #print(y_data)
+
         # 3.进行拟合
         # 移动平均的特殊处理
         if self.single_dialog.fitting_method == 'moving':
